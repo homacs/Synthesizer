@@ -1,0 +1,348 @@
+
+
+
+Module generieren aus ein oder mehreren eingehenden Audiosignalen (Eingabe) 
+ein oder mehrere ausgehende Audiosignale (Ausgabe). Ein Audiosignal kann 
+von mehreren Modulen abonniert werden.
+
+Audiosignale werden im Speicher grundsätzlich in Blöcken fester Größe verwaltet. 
+Die Blöcke dienen als Zwischenspeicher (Puffer) bis sie nicht mehr gebraucht 
+werden. 
+
+Die Signalverarbeitung erfolgt zyklisch, getrieben durch die Soundkarte 
+(Hardware). Sie fordert in gleichmäßigen Abständen synchron das Füllen 
+eines Puffers an. Die Verzögerung, die durch die Generierung des 
+Ausgangssignals erfolgt, verzögert die Ausgabe des Signals durch die 
+Hardware im gleichen Maße. Asynchrone Eingabesignale, wie das Drücken 
+einer Taste eines Keyboards, werden dadurch ebenfalls verzögert 
+wiedergegeben.
+
+Sollte das Computersystem vollständig ausgelastet sein, dann werden 
+Eingabesignale im Mittel um einen halben Zyklus verzögert. Je kürzer 
+die Zykluszeit, umso geringer wird also die Latenz der Eingaben.
+
+Wenn die Echtzeitverarbeitung aktiv ist, kann ein Block nur dann verarbeitet 
+werden, wenn er vollständig vorliegt, also erst dann, wenn die Zeit, die der
+Block wiedergegeben werden soll verstrichen ist. Die Wiedergabe eines Eingabe
+signals kann technisch bedingt nur mit einer Verzögerung erfolgen, die durch 
+die Verarbeitung der Eingabe zu einem hörbaren Signal entspricht. Die Reaktion 
+auf Eingabesignale muss also zwangsläufig eine Latenz aufweisen.
+
+Nun sind Menschen eine Latenz von akkustischen Signalen natürlicherweise gewohnt,
+allein schon, weil die Schallgeschwindigkeit deutlich langsamer ist als die 
+Lichtgeschwindigkeit. 
+
+  Schallgeschwindigkeit: ~ 343 m/s. 
+  Lichtgeschwindigkeit:  ~ 299792458 m/s
+  
+Bei einer Entfernung von nur 1 Meter ergibt sich zwischen visuell wahrgenommenem 
+Input und hörbarem Output für einen Zuhörer eine Latenz von:
+
+  L = 1/343 - 1/299792458 s = 2.915449 Millisekunden
+
+Und das schon bei nur einem Meter! 
+
+Bei dem Spieler ist es in etwa ähnlich: Der Impuls vom Gehirn, die Saite einer 
+Gitarre zu zupfen oder die Taste eines Klaviers zu drücken, wandert ebenfalls mit
+annähernd Lichtgeschwindigkeit vom Kopf durch den Körper zum Finger. Erst dann 
+wird der Schall erzeugt und wandert dann noch durch die Luft zum Ohr. Von
+der Verarbeitung des Signals im Gehirn mal abgesehen addieren sich die Zeiten also
+zu einer Latenz des Spielers:
+
+  L = 1/343 + 1/299792458 s = 2.915545 Millisekunden
+
+Wie man sieht ist der Anteil, den die Lichtgeschwindigkeit beiträgt allerdings hierbei 
+zu vernachlässigen.
+
+Spürbar ist diese physikalisch existierende Latenz für den Menschen allerdings nicht.
+Erst ab einer beträchtlichen Entfernung von ungefähr 30-40 Metern wird der Unterschied 
+zwischen visuellem und hörbarem Signal tatsächlich vom Gehirn registriert. Denken sie 
+beispielsweise an den Startschuss bei einem Hürdenlauf im Stadion: Sie sehen den Rauch 
+aus dem Lauf schießen bevor sie den Knall hören. Das können sie spüren! Und wir reden 
+hier schon von 100 bis 130 Millisekunden also über einem Zehntel einer Sekunde.
+
+So tolerant der Mensch gegenüber der Ursache-Wirkungs-Latenz bei akkustischen Signalen 
+ist so intolerant ist er gegenüber Ungenaugkeiten in der Wiedergabe von Rythmen. Wird 
+ein Signal eines Rythmus um nur wenige Millisekunden versetzt, so wird dies als eine
+Rythmusänderung wahrgenommen. D.h. wenn die Eingabesignale einer Verzögerung 
+unterliegen, dann muss diese für alle Eingabesignale exakt gleich sein! 
+
+Ein Eingabesignal muss natürlich erst verarbeitet werden, bevor es hörbar wird, was
+Zeit erfordert. Würde die Eingabe während der Verarbeitung blockiert, dann könnten 
+folgende Eingabesignale erst danach verarbeitet werden, sie werden also in der Zeit
+verschoben, was zu einer hörbaren Veränderung führt. Ist diese Verarbeitungslatenz 
+schwankend, führt dies zu ständigen Änderungen im Rythmus. Es muss also eine feste
+Abtastfrequenz für Eingabesignale vorliegen. Die Höhe der Abtastfrequenz bestimmt
+dabei darüber wie schnell die Abfolge von Eingabesignalen maximal sein kann. Nun 
+könnte man annehmen, dass eine Abtastfrequenz ausreichend ist, die in etwa der maximalen
+Tonabfolge eines Musikstücks entspricht. 
+
+Musikstücke werden in Takte unterteilt. Üblicherweise entspricht ein Takt ungefähr einer
+Sekunde. Die Notendauer wird als Bruchteil eines Taktes angegeben, also ganze, halbe, 
+viertel, achtel oder sechzehntel Note. Demnach währe die geringste Länge etwa ein sechzehntel 
+einer Sekunde, also 62 Millisekunden, was im Computermaßstäben relativ lang ist. Eine 
+gespielte Note setzt sich nun aber aus zwei Eingabesignalen zusammen: Dem Beginn und dem
+Ende des Tons. Bei einem Klavier ist das beispielsweise das Drücken und das Loslassen der Taste. 
+Besteht zwischen Ende der einen Note und Beginn der nächsten Note kein Zwischenraum, dann
+werden die Töne als ineinander Übergehend wahrgenommen. Üblicherweise werden Töne aber 
+voneinander abgesetzt, so dass sie als einzelne Noten wahrgenommen werden. Den größten 
+Zwischenraum zwischen aufeinander gespielten Noten gibt es beim Staccato. Dabei werden die 
+einzelnen Töne deutlich kürzer angespielt als es die Notenlänge vorgibt. Die Wirkung ist 
+dieselbe als würde man kurze Pausen zwischen den Noten einfügen. 
+
+Letztlich schwankt die Notenlänge zwischen der vorgegebenen Notenlänge und einem Bruchteil 
+von ihr. Damit ein Staccato als solches wahrgenommen werden kann muss die Pause zwischen 
+den Noten auch bei sechzehntel Noten deutlich werden. Dies ist nur eine Vermutung aber die
+kürzeste Notenlänge liegt demnach zwischen 1/32 (31ms) und 1/64 (16ms). Auch 16 Millisekunden
+sind noch eine Menge Zeit.
+
+Nun kommen wir aber zu den Feinheiten: In den Anfängen der Computermusik hat man sich 
+darüber beschwert, dass die Wiedergabe zu klinisch, zu akkurat klingt. Die Noten wurden 
+zu exakt wiedergeben. Um dies zu beheben hat man sogenannte Humanizer eingeführt, die
+nichts weiter gemacht haben, als die Eingabesignale zufällig um wenige Millisekunden zu 
+variieren. Das entspricht nicht ganz dem, was der Mensch macht. Menschen ziehen bestimmte 
+Noten beabsichtigt in die Länge oder verkürzen sie oder verändern ihren Beginn entsprechend 
+der Dramatik in dem Musikstück. Das jedoch liegt wiegesagt im Bereich weniger Millisekunden 
+und wirft unsere ganze Überlegung hinsichtlich einer Standard-Abtastfrequenz wieder komplett 
+über den Haufen. Tatsache ist also, dass die Abtastfrenquenz so hoch wie nur irgend möglich 
+sein sollte, damit wir menschliche Variation in den Eingabesignalen möglichst exakt abbilden 
+können.
+
+Nun ist die Frage: Wie erreichen wir eine hohe Abtastfrequenz, wenn wir die Signale doch noch 
+verarbeiten wollen. Die Antwort darauf ist der Paradigmenwechsel von Soft-Realtime zu Hard-Realtime.
+Also dem Wechsel von einem System, dass versucht möglichst schnell Eingaben zu verarbeiten, 
+zu einem System, das Eingabesignal Echtzeit-Synchron verarbeiten kann. Und das bedeutet nichts 
+weiter, als das Eingabesignale bei ihrem Auftreten lediglich mit einem Zeitstempel versehen 
+werden müssen. Die eigentliche Verarbeitung erfolgt asynchron, bei der Generierung des 
+Ausgabesignals. Die Eingabesignale werden dabei entsprechend ihrem Zeitstempel in der 
+Generierung des Ausgabesignals berücksichtigt. Also wenn etwa das Drücken der C-Taste zum Zeitpunkt
+t bekannt ist und es wird gerade das Ausgabesignal im Intervall [a,b] generiert, dann muss ab dem
+Zietpunkt t in dem Signal die Note C auftauchen. Die Verarbeitungsdauer darf damit deutlich länger 
+sein, als die Aufnahme des Eingabesignals. Die Hauptsache ist, dass sie in dem erzeugten Signal an
+der richtigen Stelle einfließen.
+
+Wir haben damit nun folgende erste Systemanforderungen synthetisiert:
+- Die Aufnahme von Eingabesignalen muss in Echtzeit erfolgen.
+- Das Bereitstellen des Ausgabesignals darf maximal um 50 Millisekunden zum Eingabesignal verzögert sein.
+- Die Abstände der Eingabesignale müssen im Ausgabesignal exakt eingehalten werden. 
+- Die Latenz zwischen Eingabe- und Ausgabesignal darf nicht schwanken.
+
+Die asynchrone Verarbeitung von Eingabe- und Ausgabesignal stellt ein technisches Problem dar.  
+Die Verarbeitung des Eingabesignals kann natürlich erst dann erfolgen, wenn es im System eingetroffen
+und vermerkt ist. Die Dauer für diesen Vorgang allein unterliegt gewissen Schwankungen, bedingt durch 
+Hardware und Betriebssystem. Sollte diese Schankung aber ein gewisses Maximum überschreiten, dann ist
+die Genauigkeit des Eingabesignals ohnehin hinfällig. Es gibt also eine zeitlich feste Grenze ab der 
+die Bearbeitung des Eingabesignals beginnen kann. Sie ist bestimmt durch die maximal tolerierte 
+Ungenauigkeit bei der Aufnahme der Eingabesignale - also extrem kurz. Die Eingabesignale werden also 
+aufgenommen und mit einem Zeitstempel versehen im System zwischengespeichert. Die Generierung des 
+Ausgabesignals erfolgt zeitlich um ein festen Offset zu der Aufnahme der Eingabesignale versetzt. 
+Das gesamte Subsystem der Generierung des Ausgabesignals läuft also in einer eigenen Zeitdomäne, die 
+nur Mikrosekunden von der Zeitdomäne der Eingabesignale in die Vergangenheit verschoben ist. Die 
+Generierung eines Ausgabesignals zum Eingabezeitpunkt t darf also frühestens zum Zeitpunkt t+o erfolgen,
+wobei o den Offset der Zeitdomäne darstellt. 
+
+Da die Generierung auch viel weiter als t+o hinterherhinken darf, muss sie Zugriff auf mehr 
+Eingabesignale aus der Vergangenheit erhalten. Da der verfügbare Speicher nicht unbegrenzt ist, 
+müssen wir jedoch wissen wann wir Eingabesignale aus dem System entfernen dürfen und dafür müssen 
+wir ermitteln, wie fern diese Vergangenheit maximal sein wird? Wir wissen, dass wir eine feste maximale
+Verzögerung für die Generierung des Eingabesignals bereitstellen werden. Die Verarbeitung des Eingabesignals
+würde nur einen Bruchteil dieser Zeit in Anspruch nehmen. Haben alle Module das Eingabesignal verarbeitet, 
+die es als direkten Input erhalten, kann es aus dem System gelöscht werden. Nennen wir diese Module 
+Eingabemodule. Alle nicht-Eingabemodule haben keinen Zugriff auf Eingabesignale. Man hat nun zwei Optionen:
+(1) Entweder man wartet, bis auch das letzte Eingabemodul ein Eingabeereignis verarbeitet hat, oder (2) 
+man definiert eine maximale Verarbeitungsdauer für die Eingabemodule und verwirft ältere Ereignisse 
+anschließend. Der Unterschied der beiden Methoden liegt darin, dass bei (1) von den Eingabemodulen 
+eine Rückmeldung an die Aufnahme der Eingabeereignisse erfolgen muss. Nimmt man an, dass die 
+Verarbeitung in den Eingabemodulen in einem anderen Thread erfolgt, als die Aufnahme und Verwaltung der 
+Eingabesignale, dann führt das zu Kommunikation zwischen den Threads, was zusätzliche Verzögerung 
+bei der Aufnahme des Eingabesignals durch Cache-Misses bedeutet. Wählt man stattdessen eine 
+zeitbasierte Synchronisation, ist eine Kommunikation zwischen den Threads nicht notwendig. Die 
+Eingabeaufnahme kann anhand der Zeitstempel und der festen maximalen Verarbeitungszeit für Eingabemodule
+selbstständig entscheiden, welche Eingabeereignisse veraltet sind und verworfen werden dürfen.
+
+Die Generierung des Ausgangssignals kann jedoch sehr viel komplexer werden. So kann das Eingangssignal 
+zunächst moduliert werden, das modulierte Signal mit anderen Signalen gemischt und der Mix 
+schließlich mit einem Hall versehen werden. Wir haben also einen Graphen bestehend aus Modulen als Knoten und
+Kanten, die Ausgangssignale der einen Module als Eingangssignale in weitere Module speisen. Es ist erlaubt, 
+dass ein Ausgangssignal von mehreren Modulen als Eingangssignal verwendet wird und ebenso können mehrere 
+Ausgangssignale wiederum in einem Modul als Eingangssignale zusammengeführt werden, z.B. in einem Mixer. 
+Auch Zyklen im Graphen sind zulässig. Um einen Hall zu modellieren, könnte man beispielsweise das Eingangssignal 
+leicht gedämpft und zeitlich versetzt erneut mit dem Eingangsignal mischen und wieder in das 
+Hallmodul einspeisen. Es ist also ein gerichteter Graph mit Zyklen.
+
+Eingabesignale können damit von einem Eingabemodul an mehrere Module weitergereicht werden. Eine Verarbeitung in
+einem einzelnen Thread währe damit unvorteilhaft. Für die Nachgeschalteten Module ergibt sich zwangsläufig, 
+dass auch sie erst dann mit ihrer Arbeit beginnen können, wenn ihre Eingabesignale vorliegen. Ihr Bearbeitungsbeginn
+ist daher ebenso versetzt zu dem vorgeschaltetem Modul. Hier jedoch sind die Schwankungen der 
+Verarbeitungsdauer im vorangehenden Module sehr viel größer als bei der Aufnahme der Eingabeereignisse. 
+Um ein Eingabesignal nicht unfertig zu verarbeiten, müsste das nachgeschaltete Module bei gleicher vorgehensweise 
+im Mittel sehr viel mehr Zeit mit Warten verschwenden, als Verzögerung durch eine 
+Inter-Thread-Kommunikation entstehen würde. Für alle Module außer den Eingabemodulen, sollte die Verarbeitung 
+also immer unmittelbar angestoßen werden, wenn die erwarteten Eingabesignale vorliegen.
+
+Das unmittelbare Anstoßen der Module bei vorliegen ihrer Eingangssignale führt dazu, dass sie zu unterschiedlichen
+Zeiten laufen. Es kann also keine globale Zeit für die nachgeschalteten Module zu einem verarbeitungszeitpunkt 
+festgelegt werden. Vielmehr ist die Verarbeitung einer globalen Zeit zugeordnet, also die Aufgabe, die vom Thread 
+bearbeitet wird, muss den virtuellen Zeitpunkt des zu bearbeitetenden Eingangssignals enthalten, damit die zugehörigen
+Eingangssignale aus dem vorangehenden Modul abgerufen werden können. 
+
+Eine weitere Sonderrolle unter den Modulen nehmen die Ausgabemodule ein, welche ein Ausgangssignal an die 
+Hardware weitergeben. Sie sind wiederum festen Zeitpunkten unterlegen, zu denen sie aufgerufen werden und ein 
+generiertes Eingangssignal auf einen Ausgang kopieren müssen. In ihnen entscheidet sich also, ob die zeitlichen Vorgaben
+eingehalten wurden oder nicht. Liegt kein Signal vor, kann es nicht ausgegeben werden und das System konnte 
+die Echtzeitanforderung nicht erfüllen. 
+
+Analysen haben ergeben, dass das Abrufen des Ausgabesignals in den Ausgabemodule im Millisekundenbereich 
+schwanken können, weshalb sie als Zeitgeber für die Eingabeaufnahme eher ungeeignet sind. Zudem sind die Zykluszeiten 
+relativ hoch und würden zu einen entsprechend hohen Ausgabelatenz führen. Die Eingabemodule werden sich daher an
+der Systemzeit orientieren und für den Fall, dass sie den Offset unterschreiten sollten, selbständig Verzögerungen
+einfügen. 
+
+Nun könnten die nachgeschalteten Module jede minimale Neuerung in den Ausgangssignalen der Eingabemodule direkt 
+verarbeiten. Durch die stotternde Verarbeitung in den Eingabemodulen müssten sich die nachgeschalteten Module jedoch 
+für jedes Eingabeereignis neu aufsynchronisieren, was immens viel Kommunikationsaufwand bedeutet und erneut zu 
+Cache-Misses und Verzögerung führt. Die Eingabemodule geben die Eingaben daher erst nach einem festen Zeitabschnitt 
+weiter. Dieser Zeitabschnitt entspricht einem Block mit einem Signal. D.h. ein Module generiert immer einen ganzen Block 
+als Ausgabesignal ohne Verzögerungen einschieben zu müssen. Die Größe des Blocks bestimmt darüber, 
+wie hoch die Ausgabelatenz sein wird. 
+
+Bei einer Blockgröße von 4096 (Page Size) und einer 44100hz Zweikanal-Audiosignal mit 16bit Werten ergibt sich damit
+eine verzögerte Eingabe von:
+
+L = blocksize/(channels*bit/8 * frequency) = 4096/(2*16/8*44100) s = 23,219 ms
+
+Für die weitere Verarbeitung würden damit maximal 26,780 ms bleiben, wenn man eine Ausgangslatenz von 50ms anstrebt.
+
+Die Blockgröße kann bei Bedarf weiter verringert werden, wenn die Ausgangslatenz verbessert werden soll. 
+Eine ideale Verzögerung, die vom Menschen auf keinen Fall wahrgenommen werden kann liegt unter 3 ms (sie oben).
+Nimmt man eine Verarbeitungsdauer für die Generierung von 1 ms an, dann wäre entsprechende Blockgröße:
+
+blocksize <= (L - processing) * channels*bit/8 * frequency 
+          <= (0.003 - 0.001) * (2*16/8*44100) 
+          <=  352.8 bytes
+
+blockduration = 
+
+Eine Blockgröße von 256 bytes wäre hinsichtlich Cache-Alignment, Verarbeitungsdauer (1,451ms) und 
+Ausgangslatenz (3ms) demnach ideal. Demgegenüber steht der Aufwand für die Erzeugung und Zuweisung 
+von Aufgaben für Threads. Je mehr Aufgaben erzeugt und verteilt werden müssen, umso größer der 
+Kommunikationsaufwand. Die Auswirkungen sind Hardware- und Graphen-abhängig und sollten daher 
+vom System durch Messungen in einer Initialisierungsphase bestimmt werden. 
+
+Wird die Transformation der Signale in den Modulen durch Threads geleistet, dann sollten Blöcke 
+möglichst selten von einem Thread zu einem anderen weitergereicht werden. Muss ein Thread eine 
+Block verarbeiten, der von einem anderen Thread gefüllt wurde, entsteht bei jedem Zugriff ein 
+Cache-Miss. Die Verarbeitung sollte daher so gesteuert werden, dass ein Thread möglichst viele 
+Aufgaben erledigt, die mit denselben Blöcken assoziiert sind.
+
+Bisher ist deutlich geworden, dass eine Aufgabe mit folgenden Daten assoziiert ist.
+- Das Modul, welches den Transformationsalgorithmus enthält
+- Den Eingabesignalen (Signalblöcke, und andere Daten (Keyboardinput))
+  Sie sind wiederum mit einem Zeitstempel versehen, der ihrer Position im Ausgabesignal entspricht. 
+
+Durch die Erledigung der Aufgabe entstehen neue Daten, wie das Ausgabesignal (neue Blöcke) oder 
+andere Daten. Blöcke werden wieder mit demselben Zeitstempel versehen. Andere Daten werden entsprechend 
+ihrer Position im Block mit einem Zeitstempel versehen.
+
+Da die Signaltransformation, den Hauptsächlichen Anteil der Datenzugriffe (Cache-Misses) ausmachen wird,
+kann sich die Kontrolle der Verarbeitung darauf konzentrieren, einen Thread möglichst häufig die selben
+Blöcke wiederverwenden zu lassen. Dies kann zunächst ganz einfach dadurch erreicht werden, dass ein Thread
+alle Aufgaben für Module in einem Pfad des Transformationsgraphen übernimmt. Er verwendet somit automatisch
+im folgenden Modul die Blöcke wieder, die er im vorangehenden Modul selbst gefüllt hat. Darüber hinaus 
+sollten nicht mehr benötigte Blöcke von einem Thread recycled werden. Existiert zum Beispiel nur ein Pfad im
+Transformationsgraphen, dann benötigt der Thread gerade mal zwei Blöcke, um einen Pfad vollständig 
+abzuarbeiten: In einem Module erhält er einen Eingabeblock und erzeugt ein Ausgabeblock, im nächsten 
+Module werden dieselben Blöcke einfach getauscht. Das Verfolgen eines Pfades durch den Graphen durch denselben
+Thread ist also sehr vorteilhaft. Liegt ein Transformationsgraph mit nur einem Pfad vor, kann dennoch Parallelität
+ausgenutzt werden. Hierzu werden mehrere Threads mit zeitlich versetzten Aufgaben für den gesamten Pfad versehen.
+Sie folgen einander also durch denselben Pfad und bearbeiten dabei jeweils unterschiedliche zeitliche 
+Abschnitte (Blöcke) im Ausgabesignal. Bei Verzweigungen im Pfad kann es von Vorteil oder von Nachteil sein, 
+je einen Thread auf den Teilpfad anzuwenden. Ist der Rechenaufwand niedrig, dann kann der Verlust durch die 
+Cache-Misses größer sein, als der Aufwand, den Pfad von demselben Thread sequentiell abzuarbeiten. Derselbe 
+Nachteil kann auch bei der zeitlichen Parallelisierung eines einzelnen Pfades entstehen, da die Blöcke am Ende von
+einem einzigen Thread in den zugewiesenen Ausgabeblock des Devices kopiert werden müssen. Ist der Aufwand 
+für die Transformation sehr gering, lohnt sich eine Parallelisierung nicht, weil der Aufwand für das Zusammenkopieren
+am Ende im Verhältnis zu stark ansteigt.
+
+Es ist also eine etwas komplexere Aufgabe zu entscheiden, ob und an welchen Stellen der Verarbeitung
+eine Parallelisierung vorteilhaft ist. Da wir jedoch harter Echtzeit genügen wollen, ist eine Fehlentscheidung 
+bezüglich der Parallelisierung inakzeptable, da sie zu einer Unterbrechung des Ausgabesignals führen würde. 
+Eine dynamische Analyse und Optimierung der Parallelisierung zur Laufzeit ist daher nicht gestattet. 
+Das bedeutet vielmehr, dass die Entscheidungen vor der Laufzeit gefällt werden müssen (evtl. auch in 
+einem Testlauf). Dadurch vereinfacht sich die Kontrolle, da sie lediglich die Ausführung nach einem 
+vorgegebenen Muster steuern muss.
+  
+Wie sieht aber das Muster für die Ausführungssteuerung aus? Wir hatten zwei Arten der Parallelisierung modelliert:
+- Zeitlich synchrone Parallelisierung, bei der Verzweigung von Pfaden
+- Zeitlich sequentielle Parallelisierung, für einzelne (Teil-)Pfade.
+
+D.h.: Ein (Teil-)Pfad wird zu einem Zeitabschnitt einem Thread zugeordnet. In dem Pfad kann bis 
+zur nächsten Verzweigung während des Zeitabschnitts kein Thread-Wechsel stattfinden. 
+Ob Zeitabschnitte von verschiedenen Threads bearbeitet werden sollten misst sich daran, wie hoch der Speedup 
+auf dem Pfad bei Parallelisierung ist. Ob Teil-Pfade verschiedenen Threads zugeordnet werden sollten, misst 
+sich ebenfalls daran ob am Ende der Speedup höher ist. Der Speedup wird in beiden Fällen wesentlich durch 
+die Cache-Misses bei einem Wechsel eines Blocks zu einem anderen Thread beeinträchtigt. Die Anzahl der Punkte, 
+an denen Blöcke zwischen Threads ausgetauscht werden sollten also gering gehalten werden. Demgegenüber steht immer
+der Rechenaufwand, der parallelisiert werden konnte. Je größer der Rechenaufwand, desto wahrscheinlicher ist es, dass
+der Speedup steigt. Je größer also der Teil-Graph der durch einen Thread bearbeitet werden kann, umso größer der 
+Speedup. Daraus lassen sich zwei Regeln für die Parallelisierung ableiten:
+1. Man beginnt mit der Zerlegung des Graphen immer bei den größten Teilelementen.
+2. Da das größte Teilelement der Graph selbst ist, ist die zeitlich sequentielle 
+   Parallelisierung immer der synchronen vorzuziehen.
+   
+Es wird also damit begonnen, den gesamten Graphen zeitlich sequentiell verschiedenen Threads zuzuordnen. Erhöht 
+sich der Speedup dabei nicht weiter, wird auch eine synchrone Parallelisierung keinen Vorteil bringen, da dieselbe
+Menge an zusätzlichen Blockwechseln stattfindet. Es existiert jedoch ein Maximum für die sequentielle 
+Parallelisierung. In dem Graphen können Feedback-Schleifen existieren. Feedback-Schleifen dienen dazu Ergebnisse 
+der Bearbeitung eines vorangehenden Signals im folgenden Zeitabschnitt erneut als Input im selben Modul oder 
+einem vorangehendem Modul zu verwenden. Das führt dazu, dass der nächste Zeitabschnitt in dem Modul mit dem Feedback 
+(Feedback-Konsument) erst dann verarbeitet werden kann, wenn der vorangehende Zeitabschnitt im Feedback-Erzeuger 
+abgeschlossen wurde. Jede äußere Feedback-Schleife im Graphen erzeugt dadurch eine Verarbeitungsstufe. Der Inhalt 
+einer Verarbeitungsstufe kann nicht weiter zeitlich sequentiell parallelisiert werden. Hat ein Graph insgesamt zwei 
+aufeinanderfolgende Verarbeitungsstufen, können also maximal zwei Threads für die zeitlich sequentielle Parallelisierung
+zum Einsatz kommen. Zur weiteren Parallelisierung, falls notwendig, können dann einzelne Teil-Pfade herausgegriffen 
+werden. Da die Threads die Teil-Pfade nun zeitlich synchron bearbeiten müssen, sollten die Pfade möglichst ähnlich 
+viel Aufwand erzeugen. Hierbei können mehrere Pfade zusammen genommen werden und einem Thread zugeordnet werden.
+Die Verteilung der Teilpfade auf Threads kann wieder durch Messungen bestimmt werden. Beginnend bei den längsten 
+Teilpfaden werden Pfadgruppen erzeugt, die ungefähr denselben Arbeitsaufwand aufweisen. Jede Gruppe wird dann 
+einem Thread zugewiesen. Steigt der Speedup weiter, wird die Zerlegung in Gruppen fortgesetzt. Sofern der Speedup 
+immer weiter steigt, wird das Maximum erreicht, wenn jede Gruppe nur einen Pfad enthält oder die maximale Anzahl 
+an Threads erreicht wurde.
+
+Die Feedback-Schleifen könnten diesen ganzen Ansatz zunichte machen. Sie erzeugen bei sequentieller Parallelisierung
+zusätzliche Block-Wechsel. Wird der Teilpfad mit der Feedback-Schleife hingegen demselben Thread zugeordnet, würden die
+zusätzlichen Block-Wechsel entfallen. Allerdings wird durch die feste Zuordnung des Pfades zu einem Thread über alle 
+Zeitabschnitte die Bearbeitung des nächsten Zeitabschnitt nur sequentiell erfolgen können. Zusätzliche Thread-Wechsel 
+in dem Pfad würden den Vorteil der festen Zuordnung des Threads zur Feedbackschleife nur wieder zunichte machen, weil 
+erneut Blockwechsel auftauchen. Daher muss der gesamte Teilpfad dem einen Thread zugewiesen werden. Geht die 
+Feedbackschleife nur über den Teilpfad, ist das vertretbar. Geht sie allerdings in einen anderen Teilpfad, können 
+ganze Subgraphen in Mitleidenschaft gezogen werden und dann könnte eine sequentielle Parallelisierung wieder besser 
+sein.
+
+Die Optimierung der Parallelisierung sollte also wie folgt angepasst werden:
+
+1. Erst sequentiell, dann synchron parallelisieren und anhand der Messergebnisse die bessere aussuchen
+2. Wenn synchron, dann auf die Teil-Pfade wieder sequentiell und synchron anwenden und wieder selektieren, usw.
+3. Wenn Speedup nicht mehr steigt, oder maximale Anzahl Threads erreicht oder weitere sequentielle 
+   oder synchrone Parallelisierung nicht möglich, dann aufhören.
+   
+   
+Sollten Feedback-Schleifen enthalten sein, dann werden sie nur bzgl. der Verarbeitungsstufen berücksichtigt. 
+Ihre Auswirkung auf den Speedup wird nur gemessen. Das führt bei diesem Verfahren implizit dazu, dass Pfade
+mit Feedback-Schleifen nur dann einen Thread-Wechsel durch sequentielle Parallelisierung erfahren, wenn es sich
+hinsichtlich des Speedups auszahlt.
+Der Speedup für die Schedule-Konfiguration eines Pfads ergibt sich als maximale Bearbeitungszeit eines 
+Zeitabschnitts (Blocks) des Signals in dem Pfad, beginnend mit dem Zeitpunkt der Annahme aller Eingabesignale 
+des ersten Moduls bis zur Fertigstellung des Ausgabesignals im letzten Modul des Pfades. Dazu müssen bei 
+sequentieller Parallelisierung mindestens so viele Zeitabschnitte gemessen werden, wie parallel bearbeitet 
+werden. 
+
+
+Die für einen Graphen einmal ermittelte Schedule-Konfiguration wird fest übernommen. Der Schedule enthält 
+Aufgabensequenzen. Eine Aufgabensequenz enthält jeweils die Aufgaben die einem Thread zu einem Zeitabschnitt 
+zugeordnet werden. Jede Aufgabe besitzt Eingaben, die vorliegen müssen, bevor die Aufgabe erfüllt werden 
+kann und genau ein Modul mit dem sie bearbeitet werden soll. Die erforderlichen Eingaben entsprechen den 
+Eingabesignalen des Moduls für den Zeitabschnitt. Zum Abschluss der Aufgabe liegen die Ausgabesignale des Moduls
+für diesen Zeitabschnitt vor. Ein Modul hat keinen eigenen Zustand. Benötigt ein Modul einen eigenen Zustand, 
+so wird dies über eine Feedback-Schleife modelliert, über die der Zustand für die Aufgabe im nächsten 
+Zeitabschnitt wieder eingespeist wird. 
