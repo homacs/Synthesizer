@@ -9,6 +9,6 @@
 
 void WorkerThread::run() {
 	if (singleTaskWorker) {
-		while (true) process(singleTask);
+		process(singleTask);
 	}
 }

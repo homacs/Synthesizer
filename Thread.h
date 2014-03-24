@@ -18,7 +18,10 @@ class Thread {
 	pthread_t pthread_ref;
 
 protected:
-	virtual void run() = 0;
+	/**
+	 * "Main" method called by the instantiated thread.
+	 */
+	virtual void run(void) = 0;
 
 	virtual ~Thread() {}
 
@@ -27,6 +30,7 @@ public:
 		pthread_ref = 0;
 	}
 	void start(void);
+
 
 };
 

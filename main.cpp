@@ -3,6 +3,16 @@
  *
  *  Created on: 8 Mar 2014
  *      Author: homac
+ *
+ *
+ * General TODOs:
+ *
+ *     TODOs are prioritised:
+ *     (1) highest
+ *     (6) lowest
+ *
+ *
+ *  TODO: (2) structure build system
  */
 
 #include <SDL2/SDL.h>
@@ -12,7 +22,9 @@
 #include "Report.h"
 
 
-/* Function Prototypes */
+/*
+ * TODO: (6) move the key click dump into a separate program.
+ * Function Prototypes */
 void PrintKeyInfo(SDL_KeyboardEvent *key);
 void PrintModifiers(Uint16 mod);
 
@@ -23,7 +35,7 @@ int main(int argc, char *argv[]) {
 	bool quit = false;
 
 	/* Initialise SDL */
-	if (SDL_Init( SDL_INIT_VIDEO) < 0) {
+	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 		Report::fatal("Could not initialise SDL: %s\n", SDL_GetError());
 	}
 

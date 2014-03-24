@@ -17,7 +17,7 @@ Synthesizer.o: Synthesizer.cpp Report.h Timer.h Synthesizer.h Keyboard.h \
  BufferedStream.h Block.h SineGenerator.h Module.h Heap.h Task.h \
  WorkerThread.h Thread.h
 Task.o: Task.cpp Task.h Module.h
-Thread.o: Thread.cpp Thread.h
+Thread.o: Thread.cpp Thread.h Report.h
 Timer.o: Timer.cpp Timer.h Report.h
 WorkerThread.o: WorkerThread.cpp WorkerThread.h Thread.h Task.h Module.h
 main.o: main.cpp Keyboard.h NoteEvent.h Note.h Timer.h Report.h Event.h \

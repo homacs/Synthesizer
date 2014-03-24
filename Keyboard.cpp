@@ -93,7 +93,7 @@ map_elem_t map[] = {
 
 note_t KeyMap::getNote(int scancode) {
 
-	// TODO: use binary search over scancodes, or build direct lookup table
+	// TODO: (6) build direct lookup table later
 
 	Report::info("scancode: 0x%02x\n");
 	int i;

@@ -60,7 +60,7 @@ void Timer::synchronizeClock(void) {
 		}
 
 		if (__builtin_expect(system_timer_config.it_interval.tv_usec != new_interval,0)) {
-			// TODO: calculate the new system_timer_config.it_value considering the
+			// TODO: Consider to calculate the new system_timer_config.it_value considering the
 			// reset and the time spend while calculating. Otherwise the first interval
 			// will be <interval> + <processing time> long.
 			const uint64_t processing_duration = 0;

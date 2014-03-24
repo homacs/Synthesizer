@@ -10,6 +10,8 @@
 
 #include "NoteEvent.h"
 
+/** Simple mapping table mapping scancodes in notes
+ */
 class KeyMap {
 	note_t basenote;
 public:
@@ -18,9 +20,16 @@ public:
 };
 
 
-
+/** This is a very basic class which converts key events from the
+ * PC keyboard into note events.
+ *
+ * The keyboard class is not driven by the audio processing engine
+ * but by the GUI thread (see SDL main window).
+ */
 class Keyboard {
 	KeyMap keymap;
+
+	/** This is the output we will forward the translated notes to. */
 	NoteEventQueue output;
 public:
 
