@@ -76,16 +76,14 @@ public:
 
 	block_time_t getCurrentBlockTime(void);
 
-	/** -1 to speed up
-	 *  +1 to slow down
-	 */
+	/** This method calibrates the timer according to the delay experienced by the audio device */
 	void reportBlockOutput(block_time_t time_of_block) {
 		if (time_of_block <= 0) return;
 		double delay = getCurrentTimestamp() - time_of_block;
 		double sliding_avg_window_size = 200.0-1;
 		delay = (delay + reported_output_delay * sliding_avg_window_size)/(sliding_avg_window_size+1);
 		reported_output_delay = delay;
-		Report::info("avg output delay: %05f\r", delay);
+//		Report::info("avg output delay: %05f\r", delay);
 	}
 
 

@@ -81,6 +81,7 @@ void dumpStream (uint8_t* stream, int size) {
 		it++;
 	}
 }
+
 void AudioDevice::callback(uint8_t* stream, int size) {
 	block_time_t timestamp = 0;
 	if (input) {

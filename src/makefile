@@ -12,8 +12,8 @@ BINARY=$(OUTDIR)/synthesizer
 all: $(BINARY)
 
 
-SRCS=$(shell ls *.cpp)
-HDRS=$(shell ls *.h)
+SRCS=$(shell find . -name "*.cpp")
+HDRS=$(shell find . -name "*.h")
 OBJS=$(SRCS:.cpp=.o)
 
 $(BINARY): $(OBJS) -lSDL2 -lpthread
@@ -21,6 +21,8 @@ $(BINARY): $(OBJS) -lSDL2 -lpthread
 
 
 .PHONY: distclean clean
+
+
 
 clean::
 	rm -f *.o
