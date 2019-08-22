@@ -8,6 +8,8 @@
 
 #include <stdio.h>
 
+#include <SDL2/SDL_keyboard.h>
+
 #include "Keyboard.h"
 #include "Timer.h"
 #include "NoteEvent.h"
@@ -18,7 +20,17 @@ void Keyboard::pressed(int scancode) {
 	block_time_t t = Timer::instance.getCurrentTimestamp();
 	note_t note = keymap.getNote(scancode);
 
-	if (note == NOTE_UNDEFINED) return;
+	if (note == NOTE_UNDEFINED) {
+		switch (scancode) {
+		case SDL_SCANCODE_PAGEUP:
+			keymap.octave_inc();
+			break;
+		case SDL_SCANCODE_PAGEDOWN:
+			keymap.octave_dec();
+			break;
+		}
+		return;
+	}
 
 	NoteEvent* event = NoteEvent::create(t, note, true);
 	printf("start %d\n", note);
@@ -38,13 +50,9 @@ void Keyboard::released(int scancode) {
 }
 
 
-struct map_elem_t {
-	int scancode;
-	note_t note;
-};
 
 
-map_elem_t map[] = {
+KeyMap::map_elem_t KeyMap::STANDARD_MAP [] = {
 		{ 0x1D, NOTE_C0},
 		{ 0x16, NOTE_Cis0},
 		{ 0x1B, NOTE_D0},
@@ -91,15 +99,36 @@ map_elem_t map[] = {
 };
 
 
+KeyMap::KeyMap() {
+	octave_shift = MIN_OCTAVE_SHIFT;
+	map = new map_elem_t[0xFF];
+	memset(map, 0, sizeof(map_elem_t) * 0xFF);
+	for (map_elem_t* e = STANDARD_MAP; e->scancode != 0; e++) {
+		map[e->scancode] = *e;
+	}
+}
+
+KeyMap::~KeyMap() {
+	delete [] map;
+}
+
+
 note_t KeyMap::getNote(int scancode) {
 
-	// TODO: (6) build direct lookup table later
-
 	Report::info("scancode: 0x%02x\n");
-	int i;
-	for (i = 0; map[i].note; i++) {
-		if (map[i].scancode == scancode) break;
+	if (map[scancode].note != NOTE_UNDEFINED) {
+		return map[scancode].note*octave_shift;
 	}
+	return NOTE_UNDEFINED;
+}
 
-	return map[i].note;
+void KeyMap::octave_inc(void) {
+	if (octave_shift < MAX_OCTAVE_SHIFT) {
+		octave_shift++;
+	}
+}
+void KeyMap::octave_dec(void) {
+	if (octave_shift > MIN_OCTAVE_SHIFT) {
+		octave_shift--;
+	}
 }

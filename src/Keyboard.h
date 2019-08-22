@@ -10,13 +10,28 @@
 
 #include "NoteEvent.h"
 
-/** Simple mapping table mapping scancodes in notes
+
+/** Simple mapping table mapping scancodes to notes
  */
 class KeyMap {
-	note_t basenote;
+
+	struct map_elem_t {
+		int scancode;
+		note_t note;
+	};
+	static map_elem_t STANDARD_MAP [];
+private:
+	static const unsigned int MAX_OCTAVE_SHIFT = 8;
+	static const unsigned int MIN_OCTAVE_SHIFT = 1;
+
+	unsigned int octave_shift;
+	struct map_elem_t* map;
 public:
-	KeyMap() : basenote(0) {}
+	KeyMap();
+	~KeyMap();
 	note_t getNote(int scancode);
+	void octave_inc();
+	void octave_dec();
 };
 
 
@@ -29,7 +44,7 @@ public:
 class Keyboard {
 	KeyMap keymap;
 
-	/** This is the output we will forward the translated notes to. */
+	/** This is the sink we will forward the translated notes to. */
 	NoteEventQueue output;
 public:
 

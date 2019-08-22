@@ -18,9 +18,14 @@
 #include "Heap.h"
 
 
+static const int16_t VOLUME_MAX = 1000;
+
 struct tone_t {
 	block_time_t start;
 	note_t freq;
+	int16_t volume;
+	block_time_t decay;
+	block_time_t decay_start;
 };
 
 static
@@ -58,6 +63,8 @@ public:
 		if (e->getTime() < end) {
 			input->pop();
 			tone_t tone;
+			tone.volume = VOLUME_MAX;
+			tone.decay = 3000000;
 			tone.freq = e->getNote();
 			tone.start = start;
 			if (e->isStartNoteEvent()) { /* press event */
@@ -67,6 +74,7 @@ public:
 			} else { /* release event */
 				Heap<tone_t>::iterator it = frequencies.find(tone, cmp_tone);
 				if (it != frequencies.end()) {
+					it->decay_start = start;
 					fadeout.add(*it);
 					frequencies.remove(it);
 				}
@@ -76,12 +84,14 @@ public:
 		}
 	}
 
-	int16_t close_to_zero(int16_t sample_value) {
-		return sample_value > -10 && sample_value < 10;
+	int16_t getDecayVolume (tone_t* tone, block_time_t sample_time) {
+		double v = 1.0f - (double)(sample_time - tone->decay_start)/tone->decay;
+		if (v <= 0) return 0;
+		else return v * tone->volume;
 	}
 
 	int16_t getSampleValue(note_t frequency, block_time_t sample_time) {
-		double periode_time = 1.0/frequency*1000000000; /*usecs per radiant*/
+		double periode_time = 1000000000.0/frequency; /*usecs per radiant*/
 
 		double rad = double(sample_time)/periode_time*(2*M_PI);
 		return sin(rad)*amplification + 0.5;
@@ -124,20 +134,23 @@ public:
 
 			Heap<tone_t>::iterator it;
 			for (it = frequencies.begin(); it < frequencies.end(); it++) {
-				sample_value += getSampleValue((it->freq) <<3, sample_time-it->start);
+				int16_t v = getSampleValue((it->freq), sample_time - it->start);
+				sample_value += v * (float)(it->volume)/VOLUME_MAX;
 			}
 
 			Heap<tone_t>::iterator end = fadeout.end();
 			for (it = fadeout.begin(); it < end; it++) {
-				int16_t v = getSampleValue((it->freq) <<3, sample_time-it->start);
-				while (close_to_zero(v)) {
+				int16_t volume = getDecayVolume(it, sample_time);
+				while (volume == 0) {
 					fadeout.remove(it);
 					end = fadeout.end();
-					if (it == end) break;
-					v = getSampleValue((it->freq) <<3, sample_time-it->start);
+					if (it == end) goto end_loop;
+					volume = getDecayVolume(it, sample_time);
 				}
-				sample_value += v;
+				int16_t v = getSampleValue((it->freq), sample_time - it->start);
+				sample_value += v * (float)(volume)/VOLUME_MAX;
 			}
+			end_loop:
 			sample->right_channel = sample_value;
 			sample->left_channel = sample_value;
 		}
