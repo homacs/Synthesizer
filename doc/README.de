@@ -24,13 +24,13 @@ die Zykluszeit, umso geringer wird also die Latenz der Eingaben.
 Wenn die Echtzeitverarbeitung aktiv ist, kann ein Block nur dann verarbeitet 
 werden, wenn er vollständig vorliegt, also erst dann, wenn die Zeit, die der
 Block wiedergegeben werden soll verstrichen ist. Die Wiedergabe eines Eingabe
-signals kann technisch bedingt nur mit einer Verzögerung erfolgen, die durch 
-die Verarbeitung der Eingabe zu einem hörbaren Signal entspricht. Die Reaktion 
+signals kann technisch bedingt nur mit einer Verzögerung erfolgen, die der 
+Verarbeitung der Eingabe zu einem hörbaren Signal entspricht. Die Reaktion 
 auf Eingabesignale muss also zwangsläufig eine Latenz aufweisen.
 
 Nun sind Menschen eine Latenz von akkustischen Signalen natürlicherweise gewohnt,
-allein schon, weil die Schallgeschwindigkeit deutlich langsamer ist als die 
-Lichtgeschwindigkeit. 
+allein schon, weil die Schallgeschwindigkeit (auditive Wahrnehmung) deutlich langsamer ist als die 
+Lichtgeschwindigkeit (visuelle Wahrnehmung). 
 
   Schallgeschwindigkeit: ~ 343 m/s. 
   Lichtgeschwindigkeit:  ~ 299792458 m/s

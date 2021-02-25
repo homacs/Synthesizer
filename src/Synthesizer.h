@@ -9,9 +9,15 @@
 #define SYNTHESIZER_H_
 #include "Keyboard.h"
 
+#include "SoundGeneratorSelector.h"
+
+
 class Synthesizer {
+
+
 public:
 	static void init(Keyboard* keyboard);
+	static void nextGenerator();
 };
 
 #endif /* SYNTHESIZER_H_ */

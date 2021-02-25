@@ -12,7 +12,7 @@
 #include "Timer.h"
 #include "Synthesizer.h"
 #include "AudioDevice.h"
-#include "SineGenerator.h"
+#include "SoundGeneratorSelector.h"
 #include "Task.h"
 #include "WorkerThread.h"
 
@@ -29,6 +29,9 @@ size_t 	align_to_power_of_2(size_t value) {
 	return result;
 }
 
+void Synthesizer::nextGenerator() {
+
+}
 
 void Synthesizer::init(Keyboard* keyboard) {
 
@@ -76,13 +79,14 @@ void Synthesizer::init(Keyboard* keyboard) {
 
 	AudioDevice::instance.init(sample_frequency, channels, sample_bit_size);
 
-	SineGenerator* sineGenerator = new SineGenerator();
-	sineGenerator->addInput(keyboard->getOutput());
+	SoundGeneratorSelector::init();
+	SoundGenerator* soundGenerator = SoundGeneratorSelector::instance->getNext();
+	soundGenerator->addInput(keyboard->getOutput());
 	BufferedStream* link = new BufferedStream(1024);
 	AudioDevice::instance.setInput(link);
-	sineGenerator->addOutput(link->getInput());
+	soundGenerator->addOutput(link->getInput());
 	task_t t;
-	t.module = sineGenerator;
+	t.module = soundGenerator;
 	WorkerThread* thread = new WorkerThread(t);
 
 	thread->start();

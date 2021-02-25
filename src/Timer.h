@@ -15,7 +15,9 @@
 
 #include "Report.h"
 
+/** milliseconds */
 typedef uint64_t block_time_t;
+/** milliseconds */
 typedef block_time_t system_time_t;
 
 typedef struct  {
@@ -87,7 +89,7 @@ public:
 	}
 
 
-
+	/** system time in milliseconds */
 	static system_time_t getSystemTime(void);
 
 

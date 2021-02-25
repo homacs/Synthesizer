@@ -10,16 +10,26 @@
 
 #include <stdint.h>
 
+#include "Timer.h"
 
 
-typedef uint32_t frequency_t; /* oscillations per 1000 seconds */
+/** oscillations per 1000 seconds */
+typedef uint32_t frequency_t;
 
-
+/** a specific frequency given in oscillations per 1000 seconds */
 typedef frequency_t note_t;
+
+
+static inline block_time_t period_time_usecs(frequency_t frequency) {
+	return 1000000000.0 / frequency;
+}
 
 #define NOTE_UNDEFINED          0  /* undefined note */
 
-/* all notes (frequencies) of the eighth octave */
+/*
+ * All notes (frequencies) of the eighth octave.
+ * Doubling a frequency increases the octave by one.
+ */
 
 const note_t NOTE_C8 		= 	4186010;
 const note_t NOTE_Cis8 		= 	4434920;

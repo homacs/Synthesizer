@@ -8,9 +8,11 @@
 
 #include <stdio.h>
 
+
 #include <SDL2/SDL_keyboard.h>
 
 #include "Keyboard.h"
+#include "Synthesizer.h"
 #include "Timer.h"
 #include "NoteEvent.h"
 #include "Report.h"
@@ -28,6 +30,8 @@ void Keyboard::pressed(int scancode) {
 		case SDL_SCANCODE_PAGEDOWN:
 			keymap.octave_dec();
 			break;
+		case SDL_SCANCODE_RIGHT:
+			Synthesizer::nextGenerator();
 		}
 		return;
 	}
