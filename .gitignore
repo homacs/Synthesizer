@@ -1,3 +1,4 @@
 /Debug/
 /src/*.o
-/src/depend
+/src/.depend.tmp
+/src/.depend
